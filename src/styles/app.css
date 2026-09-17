@@ -1,0 +1,171 @@
+/* ============================================================
+   U.L.T.R.0.N. — app.css
+   Shell layout · core animations · view styles · responsive
+   ============================================================ */
+
+/* ---- App shell ---- */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.app-main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+.app-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.app-side {
+  flex: none;
+  border-right: 1px solid var(--line);
+  background: rgba(6, 10, 18, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+/* View transition */
+.view-host {
+  height: 100%;
+  animation: viewIn var(--t-page) var(--e-out) both;
+}
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- AI core animations (transform/opacity only) ---- */
+@keyframes coreBreath {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.045); opacity: 1; }
+}
+@keyframes coreSpin {
+  to { transform: rotate(360deg); }
+}
+.ring-spin { animation: coreSpin 9s linear infinite; will-change: transform; }
+.ring-spin-rev { animation: coreSpin 14s linear infinite reverse; will-change: transform; }
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ---- View headers ---- */
+.view-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.view-head h2 { font-size: 17px; font-weight: 600; }
+
+/* ---- Chat layout ---- */
+.bubble-user { align-self: flex-end; }
+
+/* ---- Code workspace ---- */
+.code-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+}
+.code-editor {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  resize: none;
+  background: rgba(4, 7, 13, 0.85);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-l);
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #d7e6ff;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+  outline: none;
+}
+.code-editor:focus { border-color: rgba(34, 211, 238, 0.45); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1); }
+.code-out {
+  background: rgba(4, 7, 13, 0.85);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.iframe-preview {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: #fff;
+}
+
+/* ---- Research ---- */
+.wiki-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.wiki-card { padding: 14px 16px; cursor: pointer; text-align: left; transition: border-color var(--t-micro) var(--e-out), background var(--t-micro) var(--e-out), transform var(--t-micro) var(--e-out); }
+.wiki-card:hover { border-color: rgba(34, 211, 238, 0.4); background: rgba(34, 211, 238, 0.05); }
+.wiki-card:active { transform: scale(0.99); }
+
+/* ---- Sparkline ---- */
+.spark { display: block; }
+
+/* ---- Core wave bars (voice) ---- */
+
+/* ---- Scroll fade for palette categories ---- */
+
+/* ---- Focus mode ---- */
+.app.focus-mode .app-side { display: none; }
+.app.focus-mode .dock { display: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1280px) {
+  .code-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 1100px) {
+  :root { --sidebar-w: 200px; }
+}
+@media (max-width: 980px) {
+  .app-side { position: absolute; z-index: 80; height: 100%; box-shadow: var(--shadow-2); }
+  .home-strip { grid-template-columns: 1fr !important; }
+  .devices-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 720px) {
+  :root { --topbar-h: 50px; }
+  .hide-sm { display: none !important; }
+}
+
+/* ---- Reduced motion: quick fades only ---- */
+@media (prefers-reduced-motion: reduce) {
+  .ring-spin, .ring-spin-rev,
+  .anim-fade-up, .anim-pop, .anim-fade, .anim-slide-down, .view-host {
+    animation: fadeFast 120ms ease both !important;
+  }
+  .ring-spin, .ring-spin-rev { animation: none !important; }
+}
+@keyframes fadeFast {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
