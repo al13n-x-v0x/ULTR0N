@@ -6,3 +6,4 @@ release
 vite-dev.log
 *.ultron.srt
 *.captioned.*
+docs/tour-frames/

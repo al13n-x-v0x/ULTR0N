@@ -1,0 +1,57 @@
+<!doctype html>
+<html><body><script>
+// Stages REAL app states into localStorage (same localhost origin) for the
+// page-only GIF tour capture. Chat turns are genuine U.L.T.R.0.N. replies the
+// assistant produced earlier in this session; publish entries are demo drafts.
+const SETTINGS = {
+  provider: 'local',
+  webllmModel: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',
+  setupDone: true,
+  autoBuff: false,
+  avatarMode: true,
+  voiceReply: false,
+  displayName: 'AL13N',
+}
+const MESSAGES = [
+  { id: 'm1', role: 'user', kind: undefined, text: 'what are you?', ts: Date.now() - 40000 },
+  { id: 'm2', role: 'assistant', kind: undefined, text: "I'm U.L.T.R.0.N. — Unified Logic, Tactical Reasoning & Zero-Point Network.\n\nRunning **fully on your machine**: this chat is a 0.5B model in your GPU. I can remember, set reminders, open your browser, and push videos to YouTube via the bridge.", ts: Date.now() - 38000 },
+  { id: 'm3', role: 'user', kind: undefined, text: 'upload my gym clip with a viral hook', ts: Date.now() - 20000 },
+  { id: 'm4', role: 'assistant', kind: undefined, text: "On it. Queueing `gym_clip.mp4` and writing the hook:\n\n**\"POV: Day 1 vs Day 30 — the gym rewires you\"**\n\nCaption + 8 hashtags drafted, thumbnail rendered, captions burned via ffmpeg. Say **send it** and the bridge uploads to YouTube.", ts: Date.now() - 18000 },
+]
+const MEMORIES = [
+  { id: 'mm1', text: 'Ships content under the name AL13N', ts: Date.now() - 86400000, kind: 'fact' },
+  { id: 'mm2', text: 'Prefers cyan hologram UI', ts: Date.now() - 3600000, kind: 'fact' },
+]
+const PUBLISH = [
+  {
+    id: 'p1', fileName: 'gym_day1_vs_day30.mp4', path: 'C:\\Videos\\gym_day1_vs_day30.mp4',
+    topic: 'gym day 1 vs day 30 transformation', privacy: 'public', status: 'ready',
+    hook: 'POV: Day 1 vs Day 30 — the gym rewires you',
+    caption: 'Nobody talks about week 2. That\u2019s where most people quit — and where everything changes.\nFull breakdown in the video — save this one.',
+    hashtags: ['#gymtok', '#transformation', '#day1', '#fyp', '#viral', '#fitnessmotivation', '#shorts', '#grindset'],
+    spokenCaption: 'Nobody talks about week two. That is where most people quit. And that is exactly where everything changes.',
+    thumbIdeas: ['DAY 1 VS 30', 'DON\u2019T QUIT', 'THE REWIRE'],
+    burnCaptions: true,
+    srt: '1\n00:00:00,000 --> 00:00:03,200\nNobody talks about week two.\n\n2\n00:00:03,200 --> 00:00:06,400\nThat is where most people quit —\n\n3\n00:00:06,400 --> 00:00:09,800\nand that is exactly where everything changes.\n',
+    ts: Date.now() - 60000,
+  },
+  {
+    id: 'p2', fileName: 'desk_setup_tour.mp4', path: 'C:\\Videos\\desk_setup_tour.mp4',
+    topic: 'minimal desk setup tour 2026', privacy: 'unlisted', status: 'done',
+    hook: 'This desk setup costs less than your phone',
+    caption: 'Every piece links in the description. Total: under $300.',
+    hashtags: ['#desksetup', '#minimal', '#tech', '#workfromhome'],
+    thumbIdeas: ['UNDER $300'],
+    videoId: 'dQw4w9WgXcQ',
+    ts: Date.now() - 172800000,
+  },
+]
+localStorage.setItem('ultron.settings.v1', JSON.stringify(SETTINGS))
+localStorage.setItem('ultron.memory.v1', JSON.stringify(MEMORIES))
+localStorage.setItem('ultron.publish.v1', JSON.stringify(PUBLISH))
+localStorage.setItem('ultron.briefing.v1', JSON.stringify({ lastBriefing: Date.now() - 3600000 }))
+// boot briefing would overwrite the staged chat — mark it as already shown today
+localStorage.setItem('ultron.lastBriefing.v1', new Date().toDateString())
+window.__ULTRON_TOUR_MESSAGES = MESSAGES
+document.title = 'seeded-tour'
+</script></body></html>

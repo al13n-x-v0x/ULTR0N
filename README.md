@@ -4,7 +4,13 @@
 
 By [al13n-x-v0x](https://github.com/al13n-x-v0x) · AL13N INDUSTRIES
 
+[![CI](https://github.com/al13n-x-v0x/ULTR0N/actions/workflows/ci.yml/badge.svg)](https://github.com/al13n-x-v0x/ULTR0N/actions/workflows/ci.yml)
+[![Release](https://github.com/al13n-x-v0x/ULTR0N/actions/workflows/release.yml/badge.svg)](https://github.com/al13n-x-v0x/ULTR0N/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-cyan.svg)](LICENSE)
+
 ![U.L.T.R.0.N. home — holographic avatar, system meters and command bar](docs/home.png)
+
+![U.L.T.R.0.N. in motion — chat streaming, avatar, publish queue](docs/tour.gif)
 
 ---
 
@@ -16,7 +22,33 @@ By [al13n-x-v0x](https://github.com/al13n-x-v0x) · AL13N INDUSTRIES
 - **Laptop control** — the optional bridge opens sites/apps, runs token-gated commands and uploads to YouTube for real.
 - **Viral publishing pipeline** — AI hook + caption + hashtags, canvas-rendered thumbnail, optional ffmpeg caption burn, resumable YouTube upload. Queue it all in Files → Publish.
 
-## Quick start (web)
+## Quick start — one line, any OS
+
+**Windows** (cmd, PowerShell, or Win+R):
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/al13n-x-v0x/ULTR0N/main/install.ps1 | iex"
+```
+
+**Linux / macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/al13n-x-v0x/ULTR0N/main/install.sh | bash
+```
+
+**Or straight from npm:**
+```bash
+npm install -g ultr0n
+```
+
+All four aliases work: `ultr0n`, `ultron`, `ultron-cli`, `ultra0n`. Then:
+
+```bash
+ultron start         # bridge + web UI + browser, one shot
+ultron doctor        # environment check with exact fix lines
+```
+
+Full command list in [`cli/README.md`](cli/README.md). The installers handle Node 18+ (winget/apt/dnf/brew), a sudo-less npm prefix on Linux, PATH fixes, and fall back to installing from this GitHub repo if npm misses.
+
+## Quick start (dev)
 
 ```bash
 npm install
@@ -50,6 +82,7 @@ The Electron shell spawns the bridge automatically on launch and kills it on qui
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Vite dev server |
+| `ultron start` | global CLI: bridge + UI + browser (`npm i -g ultr0n`) |
 | `npm run build` | Typecheck + production web build |
 | `npm run bridge` | Start the local bridge |
 | `npm run desktop` | Dev shell: vite + electron together |

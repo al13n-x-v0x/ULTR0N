@@ -5,6 +5,19 @@
   "type": "module",
   "description": "U.L.T.R.0.N. — on-device AI assistant shell with laptop control, YouTube publishing and a holographic avatar. By al13n-x-v0x",
   "main": "electron/main.mjs",
+  "bin": {
+    "ultr0n": "cli/cli.mjs",
+    "ultron": "cli/cli.mjs",
+    "ultron-cli": "cli/cli.mjs",
+    "ultra0n": "cli/cli.mjs"
+  },
+  "files": [
+    "cli",
+    "bridge",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -34,14 +47,25 @@
     ],
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "msi", "arch": ["x64"] }
       ],
       "artifactName": "ULTR0N-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "U.L.T.R.0.N."
+    },
+    "msi": {
+      "oneClick": false,
+      "perMachine": false
+    },
+    "portable": {
+      "artifactName": "ULTR0N-Portable-${version}.${ext}"
     }
   },
   "dependencies": {

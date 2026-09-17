@@ -1,0 +1,45 @@
+{
+  "name": "ultr0n",
+  "version": "1.0.0",
+  "description": "U.L.T.R.0.N. — on-device AI assistant shell from your terminal: launch the UI, run the laptop-control bridge, open sites/apps, publish to YouTube with AI titles, ask local models. Zero dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "author": "al13n-x-v0x",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/al13n-x-v0x/ULTR0N.git"
+  },
+  "homepage": "https://github.com/al13n-x-v0x/ULTR0N#readme",
+  "bugs": "https://github.com/al13n-x-v0x/ULTR0N/issues",
+  "keywords": [
+    "ai",
+    "assistant",
+    "jarvis",
+    "llm",
+    "webllm",
+    "ollama",
+    "youtube",
+    "automation",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "ultr0n": "./cli.mjs",
+    "ultron": "./cli.mjs",
+    "ultron-cli": "./cli.mjs",
+    "ultra0n": "./cli.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "server.mjs",
+    "bridge",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "prepack": "node -e \"console.log('ultr0n ' + require('./package.json').version)\"",
+    "start": "node cli.mjs"
+  }
+}
