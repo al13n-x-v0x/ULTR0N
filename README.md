@@ -4,6 +4,8 @@
 
 By [al13n-x-v0x](https://github.com/al13n-x-v0x) · AL13N INDUSTRIES
 
+![U.L.T.R.0.N. home — holographic avatar, system meters and command bar](docs/home.png)
+
 ---
 
 ## What it does
