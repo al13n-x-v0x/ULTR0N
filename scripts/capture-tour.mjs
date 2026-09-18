@@ -2,12 +2,13 @@
  * GIF tour capture — page-only, privacy-safe.
  *
  * Drives the REAL app in headless Chrome over CDP: stages state via
- * tour-stage.html in the SAME tab (so localStorage lands on the right origin
- * and profile), walks the app through its views (home avatar, chat streaming,
- * publish queue, memory), and screenshots the PAGE per scene.
+ * tour-stage.html in the SAME tab (same origin/profile), then walks the app
+ * through six scenes — home avatar TALKING (real viseme lip-sync), chat
+ * streaming, wake-word listening, clipboard intelligence, publish queue,
+ * memory hub — screenshotting the PAGE per frame (never the desktop).
  *
  * Usage: node scripts/capture-tour.mjs [--base http://localhost:5175]
- * Output: docs/tour-frames/scene-*.png  → then stitched to docs/tour.gif
+ * Output: docs/tour-frames/scene-*.png  → stitch to docs/tour.gif with ffmpeg
  */
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
@@ -57,6 +58,7 @@ async function main() {
   const port = 9333
   const proc = spawn(CHROME, [
     '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', '--no-default-browser-check',
+    '--autoplay-policy=no-user-gesture-required',
     `--user-data-dir=${PROFILE}`, `--remote-debugging-port=${port}`, '--window-size=1600,1000', 'about:blank',
   ], { stdio: 'ignore' })
   try {
@@ -95,30 +97,23 @@ async function main() {
         return 'seg-clicked'
       })()`)
     }
+    const keyPress = (key, opts = '') => evaluate(`(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: '${key}', bubbles: true${opts} }))
+      window.dispatchEvent(new KeyboardEvent('keyup', { key: '${key}', bubbles: true${opts} }))
+      return 'key-${key}'
+    })()`)
 
     // ---- Stage state IN THIS TAB (same origin → app sees it after reload)
     await goto(`${BASE}/tour-stage.html`)
     const staged = await evaluate(`document.title`)
     if (staged !== 'seeded-tour') throw new Error('staging failed: ' + staged)
 
-    // ---- Scene 1: Home with avatar + greeting
+    // ================= Scene 1: TALKING AVATAR =================
+    // Home, then a real send from the command bar — the avatar narrates the
+    // reply with real viseme lip-sync (HomeView wiring). We catch the mouth
+    // wide open mid-word by polling the canvas.
     await goto(`${BASE}/`)
-    await evaluate(`(async () => {
-      const ai = await import('/src/store/aiStore.ts')
-      const msgs = window.__ULTRON_TOUR_MESSAGES ?? []
-      ai.useAi.setState({ messages: [{ id: 'banner', role: 'assistant', kind: 'info', text: 'U.L.T.R.0.N. // Unified Logic, Tactical Reasoning & Zero-Point Network\\nOn-device. Offline. Yours.', ts: Date.now() - 60000 }, ...msgs] })
-      return 'chat-restored'
-    })()`)
-    await sleep(2000)
-    await shoot('01-home-avatar')
-
-    // ---- Scenes 2-6: REAL send through the app's own UI (same module instance
-    // as the app — CDP import() gets a different copy, so we drive like a user).
-    // The heuristic local core types its answer out char-by-char — genuine
-    // streaming frames, no network needed.
-    await goto(`${BASE}/`)
-    await clickNav('Chat')
-    await sleep(800)
+    await sleep(1500)
     const typeAndSend = async (text) => {
       await evaluate(`(() => {
         const ta = document.querySelector('textarea')
@@ -135,37 +130,86 @@ async function main() {
         return btn ? 'sent' : 'no-send-btn'
       })()`)
     }
+    await typeAndSend('what are you?')
+    // reply streams ~1.4s; poll for peak mouth-open across the canvas
+    const mouthProbe = `(function () {
+      const cv = document.querySelector('canvas')
+      if (!cv) return -1
+      const ctx = cv.getContext('2d')
+      const px = ctx.getImageData(Math.floor(cv.width / 2), Math.floor(cv.height * 0.62), 2, 2).data
+      let sum = 0
+      for (let i = 0; i < px.length; i += 4) sum += px[i] + px[i + 1]
+      return sum
+    })()`
+    let best = { v: -1, t: 0 }
+    const t0 = Date.now()
+    while (Date.now() - t0 < 4500) {
+      const v = await evaluate(mouthProbe)
+      if (v > best.v) best = { v, t: Date.now() - t0 }
+      await sleep(110)
+    }
+    await shoot('01-avatar-talking')
+    await sleep(2500)
+
+    // ================= Scene 2: wake-word LISTENING =================
+    // The real mic button in the command bar — ring goes live, avatar meets
+    // your eyes, "LISTENING" state. (Recognition will error silently in
+    // headless; the listening UI is genuine.)
+    await evaluate(`(() => {
+      const mic = [...document.querySelectorAll('button')].find((b) => (b.title || b.getAttribute('aria-label') || '').includes('Voice input'))
+      if (mic) mic.click()
+      return mic ? 'mic-on' : 'no-mic'
+    })()`)
+    await sleep(1200)
+    await shoot('02-listening')
+    // stop it again
+    await evaluate(`(() => {
+      const mic = [...document.querySelectorAll('button')].find((b) => (b.title || b.getAttribute('aria-label') || '').includes('Stop listening'))
+      if (mic) mic.click()
+      return 'mic-off'
+    })()`)
+    await sleep(800)
+
+    // ================= Scenes 3-7: chat streaming =================
+    await goto(`${BASE}/`)
+    await clickNav('Chat')
+    await sleep(800)
     // autoBuff routes this to the viral.hook skill — a real skill run with a
     // toasts + a composed markdown reply (hook, caption, tags, thumbs)
     await typeAndSend('write a viral hook about gym day 1 vs day 30')
-    // user bubble + pending ack first
     await sleep(1400)
-    await shoot('02-stream-0')
-    // the skill runs the AI then composes — shoot while text is still growing
+    await shoot('03-stream-0')
     let lastLen = -1
     let frame = 1
-    for (let t = 0; t < 30 && frame <= 5; t++) {
+    for (let t = 0; t < 30 && frame <= 3; t++) {
       await sleep(700)
       const len = await evaluate(`document.querySelector('.app-content').innerText.length`)
-      if (len !== lastLen) { // content changed → this frame shows progress
+      if (len !== lastLen) {
         lastLen = len
-        await shoot(`02-stream-${frame}`)
+        await shoot(`03-stream-${frame}`)
         frame++
       }
     }
-    // let the reply settle fully before the next scene
     await sleep(2500)
 
-    // ---- Scene 7: publish queue (AI preview + thumbnails + statuses)
+    // ================= Scene 8: clipboard intelligence =================
+    // The app's own global Ctrl+Shift+V handler opens the real modal.
+    await keyPress('v', ', ctrlKey: true, shiftKey: true')
+    await sleep(900)
+    await shoot('04-clipboard')
+    await keyPress('Escape')
+    await sleep(500)
+
+    // ================= Scene 9: publish queue =================
     await clickNav('Files')
     await clickSeg('Publish queue')
     await sleep(1200)
-    await shoot('03-publish')
+    await shoot('05-publish')
 
-    // ---- Scene 8: memory view
+    // ================= Scene 10: memory hub =================
     await clickNav('Memory')
     await sleep(1200)
-    await shoot('04-memory')
+    await shoot('06-memory')
 
     console.log('DONE', OUT)
   } finally {

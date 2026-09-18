@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import { useAi } from '../store/aiStore'
 import { useData } from '../store/dataStore'
 import { useUi } from '../store/uiStore'
 import { useMemory } from '../store/memoryStore'
 import { AiCore } from '../components/AiCore'
-import { Avatar } from '../components/Avatar'
+import { Avatar, type AvatarHandle } from '../components/Avatar'
 import { CommandBar } from '../components/CommandBar'
 import { Ring } from '../components/ui/Meter'
 import { Icon } from '../components/Icon'
@@ -37,6 +37,22 @@ export function HomeView() {
   const aiState = useAi((s) => s.state)
   const avatarMode = useSettings((s) => s.settings.avatarMode)
   const motion = useSettings((s) => s.settings.motion)
+  const messages = useAi((s) => s.messages)
+  // The avatar narrates: every fresh completed reply is lip-synced by the
+  // hologram (visemes from the text itself) — it genuinely talks now.
+  const avatarRef = useRef<AvatarHandle | null>(null)
+  const lastSpokenId = useRef<string | null>(null)
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    if (!last || last.role !== 'assistant' || last.kind === 'pending') return
+    if (lastSpokenId.current === last.id) return
+    lastSpokenId.current = last.id
+    if (!avatarMode || !motion) return
+    const totalMs = Math.min(9000, 1200 + last.text.length * 38)
+    avatarRef.current?.speak(last.text, totalMs)
+    const stop = window.setTimeout(() => avatarRef.current?.hush(), totalMs + 400)
+    return () => window.clearTimeout(stop)
+  }, [messages, avatarMode, motion])
   const hour = new Date().getHours()
   const greeting = hour < 5 ? 'Good night' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 
@@ -82,7 +98,7 @@ export function HomeView() {
         </div>
 
         {/* Core — holographic avatar or abstract core */}
-        {avatarMode ? <Avatar size={330} state={aiState} reduced={!motion} /> : <AiCore size={330} />}
+        {avatarMode ? <Avatar size={330} state={aiState} reduced={!motion} onReady={(h) => { avatarRef.current = h }} /> : <AiCore size={330} />}
       </div>
 
       <div style={{ paddingBottom: 10 }}>
