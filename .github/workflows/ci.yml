@@ -48,7 +48,7 @@ jobs:
         run: npm run build
 
       - name: Build Windows installer (NSIS + portable)
-        run: npx electron-builder --win
+        run: npx electron-builder --win --publish never
         env:
           # skip code signing — no cert configured in CI
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
